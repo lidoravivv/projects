@@ -1,0 +1,256 @@
+Create Database Sales
+Use Sales
+
+Create Schema Sales
+
+Create Table Sales.SalesOrderDetail (
+SalesOrderID int not null,
+SalesOrderDetailID int not null,
+Primary key (SalesOrderID, SalesOrderDetailID),
+CarrierTrackingNumber nvarchar(25) null,
+OrderQty smallint not null,
+Productid int not null,
+SpecialOfferID int not null,
+UnitPrice money not null,
+UnitPriceDiscount money not null,
+LineTotal numeric(38,6) not null,
+Rowguid uniqueidentifier not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.SalesOrderDetail
+
+--select *
+--from sales.SalesOrderDetail
+
+Create Table Sales.SalesOrderHeader(
+SalesOrderId int primary key  not null,
+RevisionNumber tinyint not null,
+OrderDate datetime not null,
+DueDate datetime not null,
+ShipDate datetime null,
+Status tinyint not null,
+OnlineOrderFlag bit not null,
+SalesOrderNumber nvarchar(25) not null,
+PurchaseOrderNumber nvarchar(25) null,
+AccountNumber nvarchar(15) null,
+CustomerID int not null,
+SalesPersonID int null,
+TerritoryID int null,
+BillToAddressID int not null,
+ShipToAddressID int not null,
+ShipMethodID int not null,
+CreditCardID int null,
+CreditCardApprovalCode varchar(15) null,
+CurrencyRateID int null,
+SubTotal money not null,
+TaxAmt money not null,
+Freight money not null,
+TotalDue money not null,
+Comment nvarchar(128) null,
+rowguid uniqueidentifier not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.SalesOrderHeader
+
+--select *
+--from sales.SalesOrderHeader
+
+
+Create Table Sales.CurrencyRate(
+CurrencyRateID int primary key not null,
+CurrencyRateDate datetime not null,
+FromCurrencyCode nchar(3) not null,
+ToCurrencyCode nchar(3) not null,
+AverageRate money not null,
+EndOfDayRate money not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.CurrencyRate
+
+--select *
+--from sales.CurrencyRate
+
+Create Table Sales.SpecialOfferProduct(
+SpecialOfferID int not null,
+ProductID int not null,
+primary key (SpecialOfferID, ProductID),
+rowguid uniqueidentifier not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.SpecialOfferProduct
+
+--select *
+--from sales.SpecialOfferProduct
+
+Create Table Sales.CreditCard(
+CreditCardID int primary key not null,
+CardType nvarchar(50) not null,
+CardNumber nvarchar(25) not null,
+ExpMonth tinyint not null,
+ExpYear smallint not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.CreditCard
+
+--select *
+--from sales.CreditCard
+
+Create Table Sales.SalesPerson (
+BusinessEntityID int primary key not null,
+TerritoryID int null,
+SalesQuota money null,
+Bonus money not null,
+Commissionpct smallmoney not null,
+SalesYTD money not null,
+SalesLastYear money not null,
+rowguid uniqueidentifier not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.SalesPerson
+
+--select *
+--from Sales.SalesPerson
+
+Create Table Sales.SalesTerritory(
+TerritoryID int primary key not null,
+Name nvarchar(50) not null,
+CountryRegionCode nvarchar(3) not null,
+[Group] nvarchar(50) not null,
+SalesYTD money not null,
+SalesLastYear money not null,
+CostYTD money not null,
+CostLastYear money not null,
+rowguid uniqueidentifier not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.SalesTerritory
+
+--select *
+--from sales.SalesTerritory
+
+Create Table Sales.Customer (
+CustomerID int primary key not null,
+PersonID int null,
+StoreID int null,
+TerritoryID int null,
+AccountNumber varchar(10) not null,
+rowguid uniqueidentifier not null,
+ModifiedDate datetime not null)
+--Drop Table Sales.Customer
+
+--select *
+--from sales.Customer
+
+Create Schema Person 
+
+Create Table Person.Address (
+AddressID int primary key not null,
+AddressLine1 nvarchar(60) not null,
+AddressLine2 nvarchar(60) null,
+City nvarchar(30) not null,
+StateProvinceID int not null,
+PostalCode nvarchar(15) not null,
+SpatialLocation geography null,
+rowguid uniqueidentifier not null,
+MedifiedDate datetime not null)
+--Drop Table Person.Address
+
+--select *
+--from person.address
+
+Create Schema Purchasing
+
+Create Table Purchasing.ShipMethod(
+ShipMethodID int primary key not null,
+Name nvarchar(50) not null,
+ShipBase money not null,
+ShipRate money not null,
+rowguid uniqueidentifier not null,
+ModifiedDater datetime not null)
+--Drop Table Purchasing.ShipMethod
+
+--select *
+--from Purchasing.ShipMethod
+
+Alter Table Sales.Customer 
+Add Foreign Key (TerritoryID)
+References Sales.SalesTerritory(TerritoryID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key (CustomerID)
+References Sales.Customer (CustomerID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key (TerritoryID)
+References Sales.SalesTerritory(TerritoryID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key (SalesPersonID)
+References Sales.SalesPerson (BusinessEntityID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key (CreditCardID)
+References Sales.CreditCard(CreditCardID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key (ShipMethodID)
+References Purchasing.ShipMethod(ShipMethodID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key(CurrencyRateID)
+References Sales.CurrencyRate(CurrencyRateID)
+
+Alter Table Sales.SalesOrderDetail
+Add Foreign Key(SalesOrderID)
+References Sales.SalesOrderheader(SalesOrderID)
+
+Alter Table Sales.SalesOrderDetail
+Add Foreign Key(SpecialOfferID,ProductID)
+References Sales.SpecialOfferProduct(SpecialOfferID, ProductID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key(ShipToAddressID)
+References Person.Address(AddressID)
+
+Alter Table Sales.SalesOrderHeader
+Add Foreign Key (BillToAddressID)
+References Person.Address(AddressID)
+
+Alter Table Sales.Sales.Customer
+Add Foreign Key(TerritoryID)
+References Sales.SalesTerritory(TerritoryID)
+
+Insert Into Sales.Person.Address (AddressID,AddressLine1,AddressLine2,City,StateProvinceID,PostalCode,SpatialLocation,rowguid,MedifiedDate)
+Select AddressID,AddressLine1,AddressLine2,City,StateProvinceID,PostalCode,SpatialLocation,rowguid,ModifiedDate
+From AdventureWorks2019.Person.Address
+
+Insert Into Sales.Purchasing.ShipMethod (ShipMethodID,Name,ShipBase,ShipRate,rowguid,ModifiedDater)
+Select ShipMethodID,Name,ShipBase,ShipRate,rowguid,ModifiedDate
+From AdventureWorks2019.Purchasing.ShipMethod
+
+Insert Into Sales.Sales.CreditCard (CreditCardID,CardType,CardNumber,ExpMonth,ExpYear,ModifiedDate)
+Select CreditCardID,CardType,CardNumber,ExpMonth,ExpYear,ModifiedDate
+From AdventureWorks2019.Sales.CreditCard
+
+Insert Into Sales.Sales.CurrencyRate (CurrencyRateID,CurrencyRateDate, FromCurrencyCode,ToCurrencyCode,AverageRate,EndOfDayRate,ModifiedDate)
+Select CurrencyRateID,CurrencyRateDate, FromCurrencyCode,ToCurrencyCode,AverageRate,EndOfDayRate,ModifiedDate
+From AdventureWorks2019.Sales.CurrencyRate
+
+Insert Into Sales.Sales.SalesPerson(BusinessEntityID,TerritoryID,SalesQuota,Bonus,Commissionpct,SalesYTD,SalesLastYear,rowguid,ModifiedDate)
+Select BusinessEntityID,TerritoryID,Salesquota,Bonus,Commissionpct,SalesYTD,SalesLastYear,rowguid,ModifiedDate
+From AdventureWorks2019.Sales.SalesPerson
+
+Insert Into Sales.Sales.Customer (CustomerID,PersonID,StoreID,TerritoryID,AccountNumber,rowguid,ModifiedDate)
+Select CustomerID,PersonID,StoreID,TerritoryID,AccountNumber,rowguid,ModifiedDate
+From AdventureWorks2019.Sales.Customer
+
+Insert Into Sales.Sales.SalesTerritory (TerritoryID,Name,CountryRegionCode,[group],SalesYTD,SalesLastYear,CostYTD,CostLastYear,rowguid,ModifiedDate)
+Select TerritoryID,Name,CountryRegionCode,[group],SalesYTD,SalesLastYear,CostYTD,CostLastYear,rowguid,ModifiedDate
+From AdventureWorks2019.Sales.SalesTerritory
+
+Insert Into Sales.Sales.SpecialOfferProduct (SpecialOfferID,ProductID,rowguid,ModifiedDate)
+Select SpecialOfferID,ProductID,rowguid,ModifiedDate
+From AdventureWorks2019.Sales.SpecialOfferProduct
+
+Insert Into Sales.Sales.SalesOrderHeader (SalesOrderId,RevisionNumber,OrderDate,DueDate,ShipDate,[Status],OnlineOrderFlag,SalesOrderNumber,PurchaseOrderNumber,AccountNumber,CustomerID,SalesPersonID,TerritoryID,BillToAddressID,ShipToAddressID,ShipMethodID,CreditCardID,CreditCardApprovalCode,CurrencyRateID,SubTotal,Taxamt,Freight,TotalDue,Comment,rowguid,ModifiedDate)
+Select SalesOrderId,RevisionNumber,OrderDate,DueDate,ShipDate,[Status],OnlineOrderFlag,SalesOrderNumber,PurchaseOrderNumber,AccountNumber,CustomerID,SalesPersonID,TerritoryID,BillToAddressID,ShipToAddressID,ShipMethodID,CreditCardID,CreditCardApprovalCode,CurrencyRateID,SubTotal,Taxamt,Freight,TotalDue,Comment,rowguid,ModifiedDate
+From AdventureWorks2019.Sales.SalesOrderHeader
+
+Insert Into Sales.Sales.SalesOrderDetail(SalesOrderID,SalesOrderDetailID,CarrierTrackingNumber,OrderQty,Productid,SpecialOfferID,UnitPrice,UnitPriceDiscount,LineTotal,rowguid,ModifiedDate)
+Select SalesOrderID,SalesOrderDetailID,CarrierTrackingNumber,OrderQty,Productid,SpecialOfferID,UnitPrice,UnitPriceDiscount,LineTotal,rowguid,ModifiedDate
+From AdventureWorks2019.Sales.SalesOrderDetail
+
+
